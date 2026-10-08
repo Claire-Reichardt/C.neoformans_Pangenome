@@ -1,0 +1,5 @@
+./cryptococcus_Bt206.proteins.fa
+./cryptococcus_Bt92.proteins.fa
+./cryptococcus_WM626.MMRL.3150.proteins.fa
+./cryptococcus_PLR10.proteins.fa
+./excluded_genomes_6-16-25.txt
