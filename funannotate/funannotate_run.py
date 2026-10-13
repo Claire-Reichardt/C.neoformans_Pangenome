@@ -102,8 +102,8 @@ for strain in sorted_strains:
 #SBATCH --partition=batch
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=24
-#SBATCH --mem=150G
-#SBATCH --time=3-00:00:00
+#SBATCH --mem=25G
+#SBATCH --time=1-00:00:00
 #SBATCH --output=""")
 	shell.write(straindir)
 	shell.write("""/%x_%j.out""")

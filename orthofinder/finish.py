@@ -56,7 +56,7 @@ shell.write("""#!/bin/bash
 #SBATCH --partition=highmem_p
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32
-#SBATCH --mem=250G
+#SBATCH --mem=25G
 #SBATCH --time=3-00:00:00
 #SBATCH --dependency=singleton
 #SBATCH --output=""")

@@ -70,7 +70,7 @@ for fp in os.listdir(srrdir):
 #SBATCH --partition=highmem_p
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=24
-#SBATCH --mem=100G
+#SBATCH --mem=12G
 #SBATCH --time=48:00:00
 #SBATCH --output=""")
 		shell.write(straindir)
