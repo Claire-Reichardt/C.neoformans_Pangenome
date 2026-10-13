@@ -1,4 +1,5 @@
-###Make a pie
+#Updated 10/13/26
+###Figure 2a: Make a pie
 library(ggplot2)
 library(dplyr)
 data <- data.frame(value=c(407,6157),
@@ -27,8 +28,8 @@ p<- g +
   theme(legend.position="none")
 #export as 3x3in
 
-###Histogram
-fig2data<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/Fig2tbl.csv", sep=',', header=TRUE, skipNul = TRUE)
+###Figure 2b Histogram
+fig2data<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/Ortho_counts.csv", sep=',', header=TRUE, skipNul = TRUE)
 dat5 <- fig2data %>% select(c("Class", val="Count"))
 g <- ggplot(dat5, aes(x=val, fill=Class))
 b <- g + 
@@ -49,8 +50,8 @@ b <- g +
   scale_fill_manual(values=c("#ce4257","#720026"))
 #export as 6x4 in
 
-###violin plot for orthogroups
-extradata<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/Figure4tbl.csv", sep=',')
+###Figure 2c: violin plot for orthogroups
+extradata<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/Iso_info.csv", sep=',')
 dat4 <- extradata %>% select(c("Strain", val="accessory_count"))
 p <- ggplot(dat4, aes(x="Accessory", y=val))
 v1<- p+
@@ -79,8 +80,8 @@ library("ggpubr")
 figure<- ggarrange(v2, v1, ncol=2)
 #export as 4x6 in
 
-###mean accessory genes with error bars
-dat7<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/accessory_pergenome.csv", sep=',', header=TRUE)
+###Figure 2d: mean accessory genes with error bars
+dat7<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/accessory_pergenome.csv", sep=',', header=TRUE)
 p <- ggplot(dat7, aes(x=X, y=roll_ave, color="Accessory"))
 l <- p + 
   geom_line()+
@@ -100,8 +101,8 @@ l <- p +
        y = "Accessory orthologs")
 #export as 4x4.5 in
 
-###Box plot for accuracy data
-accuracy_dat<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/accuracy.csv", sep=',', header=TRUE) %>% select(c("Class","specificity","accuracy","recall"))
+###Figure S2:Box plot for accuracy data
+accuracy_dat<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/accuracy.csv", sep=',', header=TRUE) %>% select(c("Class","specificity","accuracy","recall"))
 accuracy_dat <- accuracy_dat %>% select(c("Class", "specificity","recall","accuracy"))
 accuracy_dat_melt<- melt(accuracy_dat, id.vars = "Class")
 accuracy_dat_melt$Class <- factor(accuracy_dat$Class , levels=c("core","accessory"))
@@ -118,14 +119,14 @@ ggplot(accuracy_dat_melt,aes(y=value,x=variable,fill=Class))+
        y = "Rate")
 #export as 5x6in
 
-###Phylogenetic tree with accessory genes
+###Figure 3:Phylogenetic tree with accessory genes
 library(ggtree)
 library(ape)
 library(ggnewscale)
 library(ggtreeExtra)
 library(ggplot2)
 
-tree <- read.tree("C:/Users/clair/OneDrive/Documents/Billmyre/DesjardGR17_Fig1_crypto_387_snpphylo.nwk")
+tree <- read.tree("C:/Users/clair/OneDrive/Desktop/R_pangenome/DesjardGR17_Fig1_crypto_387_snpphylo.nwk")
 droptips <- c("Bt92", "PLR10", "Bt206","WM626","H99")
 tree_removedtips <- drop.tip(tree, droptips)
 
@@ -210,8 +211,81 @@ b<- t+
     values=c("#ce4257"))
 #export as 10x12in
 
-###make tree for long-read assemblies used
-tree <- read.tree("C:/Users/clair/OneDrive/Documents/Billmyre/DesjardGR17_Fig1_crypto_387_snpphylo.nwk")
+###Figure 4a: Create upset plot
+library(ggupset)
+mol_prop<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/percent_moltype.csv", sep=',', header=TRUE)%>% select(c("orthogroup","class","count","VNI_percent", "VNII_percent","VNBI_percent","VNBII_percent","mol_list"))
+mol_specific<-mol_prop[mol_prop[,'VNI_percent']==0 | mol_prop[,'VNII_percent']==0 | mol_prop[,'VNBI_percent']==0 | mol_prop[,'VNBII_percent']==0 | mol_prop[,'class']=='accessory',]mol_specific$mol_list = strsplit(mol_specific$mol_list,",")
+ggplot(mol_specific,aes(x=mol_list))+
+  geom_bar(aes(fill=class))+
+  scale_x_upset(name="Molecular type presence")+
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-0.5, size=4)+
+  scale_y_continuous(lim = c(0, 220), name = "Ortholog count")+
+  theme_bw()+
+  theme(axis.title = element_text(size = 15),
+        legend.text=element_text(size=12),
+        legend.title=element_text(size=15),
+        axis.text=element_text(size=12),
+        panel.grid.minor=element_blank(),
+        panel.grid.major.x=element_blank())+
+  scale_fill_manual(
+    name="Gene class",
+    values=c("#ce4257","#720026"))
+#save as 4x7.5
+
+###Figure 4b: Create plot showing accessory genes per genome curve for each molecular type
+dat26<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/VNBII_accessory_pergenome.csv", sep=',', header=TRUE)
+#dat27<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/VNII_accessory_pergenome.csv", sep=',', header=TRUE)
+dat28<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/VNBI_accessory_pergenome.csv", sep=',', header=TRUE)
+dat29<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/VNI_accessory_pergenome.csv", sep=',', header=TRUE)
+p <- ggplot()+ 
+  geom_line(data=dat26,aes(x=X, y=roll_ave), color="#6D6875")+
+  geom_errorbar(data=dat26,aes(x=X,ymin=roll_ave-roll_st, ymax=roll_ave+roll_st), width=1,
+                color="#6D6875", alpha=0.6)+
+  geom_line(data=dat28, aes(x=X, y=roll_ave), color="#E5989B")+
+  geom_errorbar(data=dat28,aes(x=X,ymin=roll_ave-roll_st, ymax=roll_ave+roll_st), width=1, color="#E5989B", alpha=0.6)+
+  geom_line(data=dat29, aes(x=X, y=roll_ave), color="#B5838D")+
+  geom_errorbar(data=dat29,aes(x=X,ymin=roll_ave-roll_st, ymax=roll_ave+roll_st), width=1, color="#B5838D", alpha=0.6)+
+  scale_y_continuous(limits=c(120,320),breaks = seq(120,320, by = 50))+
+  scale_x_continuous(limits=c(20,200),breaks = seq(20, 200, by =60))+
+  labs(x = "Genomes",
+       y = "Accessory orthologs")+
+  theme_bw()+
+  theme(axis.title = element_text(size = 15),
+        legend.text=element_text(size=12),
+        legend.title=element_text(size=15),
+        axis.text=element_text(size=12),
+        panel.grid.minor=element_blank())
+print(p)
+#export as 4x5in
+
+###Figure S4: Example of fitting power equations to data from accessory genes per genome
+VNBI_rollave<- data.frame(x=dat28$X+1, y=dat28$roll_ave)
+model <- model <- nls(y ~ a * x^b, data = VNBI_rollave, start = list(a = 1, b = 1))
+eq <- substitute(italic(P) == a * italic(N)^b, 
+                 list(a = format(unname(coef(model)[1]), digits = 5),
+                      b = format(unname(coef(model)[2]), digits = 5)))
+melt_df<-melt(dat28%>% select(-c(roll_ave, roll_st)),id="X")
+curve_data <- data.frame(x = seq(0, max(VNBI_rollave$x)))
+curve_data$y <- predict(model, newdata = curve_data)
+p <- ggplot()+ 
+  geom_point(data=melt_df,aes(x=X+1,y=value),alpha=0.3,color="grey",size=0.2)+
+  geom_point(data=VNBI_rollave,aes(x=x,y=y), color="darkblue",size=1,shape=17)+
+  geom_line(data = curve_data, aes(x = x, y = y), color = "red", linetype = "dashed",size=1.5) +
+  theme_bw()+
+  labs(x = "VNBI genomes",
+       y = "Accessory orthologs")+
+  theme(axis.title = element_text(size = 15),
+        legend.text=element_text(size=12),
+        legend.title=element_text(size=15),
+        axis.text=element_text(size=12),
+        panel.grid.minor=element_blank())+
+  scale_x_continuous(limits=c(0,150),breaks = seq(0, 150, by =50))+
+  annotate("text",x = 40, y = 10,label = as.expression(eq),size=4)
+print(p)
+#export as 4x5.5
+
+###Figure S1: make tree for long-read assemblies used
+tree <- read.tree("C:/Users/clair/OneDrive/Desktop/R_pangenome/DesjardGR17_Fig1_crypto_387_snpphylo.nwk")
 keeptips <- c("Muc525-1","PMHc1049.THER1.STOR","Gb159-1",
               "Bt105","PMHc1011.ENR","PMHc1023.ENR",
               "Bt35","PMHc1030.ENR.CLIN.ISO","Bt103","H99","Ftc555-1",
@@ -240,8 +314,8 @@ g<-ggtree(groupedtree,layout="circular",aes(color=group),size=0.9)+
   theme(plot.margin = margin(t=0.5,r=0.5,l=1,b=1.5, "cm"))
 #export as 5x7
 
-###plot for accessory gene locations in H99
-dat8<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/Orthos_H99.csv", sep=',', header=FALSE)
+###Figure 5a: plot for accessory gene locations in H99
+dat8<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/Orthos_H99.csv", sep=',', header=FALSE)
 dat8<- subset(dat8, V2 != "MT")
 H99_chr_length<-data.frame(chr_name=1:14,                        chr_len=c(2291499,1621675,1575141,1084805,1814975, 1422463,1399503,1398693,1186808,1059964,1561994,774062,756744,942867),
                            cen_start=c(978064,852348,1378287,708803,1564073,784407,525713,458008,803599,199433,870137,139632,581910,445442),
@@ -279,9 +353,9 @@ ggplot(data=H99_chr_length)+
   scale_x_reverse(breaks=seq(1,14, by=1))
 #export as 4x6in
 
-###make plot to show difference between accessory gene locations
+###Figure 5b: make plot to show difference between accessory gene locations
 library(ggsignif)
-subtelo<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/longread_subtelo_acc.csv", sep=',', header=TRUE) %>% select(c("Genome","acc_per_bp_subtelo", "acc_per_bp_genome"))
+subtelo<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/longread_subtelo_acc.csv", sep=',', header=TRUE) %>% select(c("Genome","acc_per_bp_subtelo", "acc_per_bp_genome"))
 subtelo_melt<- melt(subtelo, id.vars = "Genome")
 subtelo_melt$variable <- factor(subtelo_melt$variable, levels=c("acc_per_bp_genome","acc_per_bp_subtelo"))
 ggplot(subtelo_melt,aes(y=value*100000,x=variable))+
@@ -302,15 +376,15 @@ ggplot(subtelo_melt,aes(y=value*100000,x=variable))+
               map_signif_level=TRUE)
 #export as 4x4
 
-###Chromosome 5 left arm genes
+###Figure 5c: Chromosome 5 left arm genes
 library(gggenomes)
 s0<-tibble::tibble(
   seq_id=c("H99","125.91","T4","Bt1","Ftc146-1"),
   length=c(37000,37000,37000,37000,37000),
   start=c(2500,2500,2908,21654,31928),
   end=c(37000,37000,37000,37000,37000),)
-g1 <- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/ident_island_genes.csv")
-l2 <-read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/ident_island_links.csv")
+g1 <- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/ident_island_genes.csv")
+l2 <-read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/ident_island_links.csv")
 p <- gggenomes(seqs=s0,
                genes =g1,
                links=l2,
@@ -328,9 +402,9 @@ p+
     name="Gene class",
     values=c("#ce4257","#720026"))
 
-###Create heatmap of ortholog conservation
+###Figure 5d: Create heatmap of ortholog conservation
 library(pheatmap)
-dat20g<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/one-to-one_orthocompare_groups.csv", sep=',', header=TRUE)
+dat20g<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/one-to-one_orthocompare_groups.csv", sep=',', header=TRUE)
 rownames(dat20g) <- dat20g[,1]
 dat20g <- dat20g[,-1]
 labels <- data.frame(Group = c("VNI", "VNII", "VNBI","VNBII"))
@@ -345,87 +419,14 @@ h<-pheatmap(dat20g,
             annotation_colors=list(Group=c(VNI="#B5838D",VNII="#FFB4A2",VNBII="#6D6875",VNBI="#E5989B")))
 #export as 6.5x5.5
 
-###Create upset plot
-library(ggupset)
-mol_prop<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/percent_moltype.csv", sep=',', header=TRUE)%>% select(c("orthogroup","class","count","VNI_percent", "VNII_percent","VNBI_percent","VNBII_percent","mol_list"))
-mol_specific<-mol_prop[mol_prop[,'VNI_percent']==0 | mol_prop[,'VNII_percent']==0 | mol_prop[,'VNBI_percent']==0 | mol_prop[,'VNBII_percent']==0 | mol_prop[,'class']=='accessory',]mol_specific$mol_list = strsplit(mol_specific$mol_list,",")
-ggplot(mol_specific,aes(x=mol_list))+
-  geom_bar(aes(fill=class))+
-  scale_x_upset(name="Molecular type presence")+
-  geom_text(stat='count', aes(label=after_stat(count)), vjust=-0.5, size=4)+
-  scale_y_continuous(lim = c(0, 220), name = "Ortholog count")+
-  theme_bw()+
-  theme(axis.title = element_text(size = 15),
-        legend.text=element_text(size=12),
-        legend.title=element_text(size=15),
-        axis.text=element_text(size=12),
-        panel.grid.minor=element_blank(),
-        panel.grid.major.x=element_blank())+
-  scale_fill_manual(
-    name="Gene class",
-    values=c("#ce4257","#720026"))
-#save as 4x7.5
-
-###Create plot showing accessory genes per genome curve for each molecular type
-dat26<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/VNBII_accessory_pergenome.csv", sep=',', header=TRUE)
-#dat27<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/VNII_accessory_pergenome.csv", sep=',', header=TRUE)
-dat28<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/VNBI_accessory_pergenome.csv", sep=',', header=TRUE)
-dat29<- read.csv("C:/Users/clair/OneDrive/Documents/Billmyre/VNI_accessory_pergenome.csv", sep=',', header=TRUE)
-p <- ggplot()+ 
-  geom_line(data=dat26,aes(x=X, y=roll_ave), color="#6D6875")+
-  geom_errorbar(data=dat26,aes(x=X,ymin=roll_ave-roll_st, ymax=roll_ave+roll_st), width=1,
-                color="#6D6875", alpha=0.6)+
-  geom_line(data=dat28, aes(x=X, y=roll_ave), color="#E5989B")+
-  geom_errorbar(data=dat28,aes(x=X,ymin=roll_ave-roll_st, ymax=roll_ave+roll_st), width=1, color="#E5989B", alpha=0.6)+
-  geom_line(data=dat29, aes(x=X, y=roll_ave), color="#B5838D")+
-  geom_errorbar(data=dat29,aes(x=X,ymin=roll_ave-roll_st, ymax=roll_ave+roll_st), width=1, color="#B5838D", alpha=0.6)+
-  scale_y_continuous(limits=c(120,320),breaks = seq(120,320, by = 50))+
-  scale_x_continuous(limits=c(20,200),breaks = seq(20, 200, by =60))+
-  labs(x = "Genomes",
-       y = "Accessory orthologs")+
-  theme_bw()+
-  theme(axis.title = element_text(size = 15),
-        legend.text=element_text(size=12),
-        legend.title=element_text(size=15),
-        axis.text=element_text(size=12),
-        panel.grid.minor=element_blank())
-print(p)
-#export as 4x5in
-
-###Example of fitting power equations to data from accessory genes per genome
-VNBI_rollave<- data.frame(x=dat28$X+1, y=dat28$roll_ave)
-model <- model <- nls(y ~ a * x^b, data = VNBI_rollave, start = list(a = 1, b = 1))
-eq <- substitute(italic(P) == a * italic(N)^b, 
-                 list(a = format(unname(coef(model)[1]), digits = 5),
-                      b = format(unname(coef(model)[2]), digits = 5)))
-melt_df<-melt(dat28%>% select(-c(roll_ave, roll_st)),id="X")
-curve_data <- data.frame(x = seq(0, max(VNBI_rollave$x)))
-curve_data$y <- predict(model, newdata = curve_data)
-p <- ggplot()+ 
-  geom_point(data=melt_df,aes(x=X+1,y=value),alpha=0.3,color="grey",size=0.2)+
-  geom_point(data=VNBI_rollave,aes(x=x,y=y), color="darkblue",size=1,shape=17)+
-  geom_line(data = curve_data, aes(x = x, y = y), color = "red", linetype = "dashed",size=1.5) +
-  theme_bw()+
-  labs(x = "VNBI genomes",
-       y = "Accessory orthologs")+
-  theme(axis.title = element_text(size = 15),
-        legend.text=element_text(size=12),
-        legend.title=element_text(size=15),
-        axis.text=element_text(size=12),
-        panel.grid.minor=element_blank())+
-  scale_x_continuous(limits=c(0,150),breaks = seq(0, 150, by =50))+
-  annotate("text",x = 40, y = 10,label = as.expression(eq),size=4)
-print(p)
-#export as 4x5.5
-
-###Accessory vs. species tree heatmap
-tree <- read.tree("C:/Users/clair/OneDrive/Documents/Billmyre/Fig1_Crypto_Kwoniella_RelTime_timetree.nwk")
+###Figure 6a: Accessory vs. species tree heatmap
+tree <- read.tree("C:/Users/clair/OneDrive/Desktop/R_pangenome/Cohleo_Crypto_Kwoniella_RelTime_timetree.nwk")
 droptips <- c("'Cryp_sp._OR849'", "'Kwon_sp._B9012'","'Cryp_sp._OR918'", "'Kwon_sp._CBS9459'","'Kwon_sp._CBS6097'","'Kwon_sp._DSM27419'", "Trem_mese_ATCC28783","Cryp_gatt_MF34")
 tree_removedtips <- drop.tip(tree, droptips)
 rooted_tree<-root(tree_removedtips,outgroup=c("K_shandongensis_CBS12478","K_newhampshirensis_CBS13917"),resolve.root=TRUE)
 rooted_tree$edge.length <- rooted_tree$edge.length * 0.25
 rooted_tree$edge.length[which(!(rooted_tree$edge[,1] %in% rooted_tree$edge[,2]))] <- sum(rooted_tree$edge.length[which(!(rooted_tree$edge[,1] %in% rooted_tree$edge[,2]))])/2
-species_ids<-read.csv("C:/Users/clair/Downloads/species_miniprot_identities.csv", sep=',', header=TRUE)
+species_ids<-read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/species_miniprot_identities.csv", sep=',', header=TRUE)
 melt_species_ids <- melt(species_ids)
 p <- ggtree(tr=rooted_tree,
             linewidth=0.2,
@@ -446,7 +447,22 @@ h<- r2+
 print(h)
 #export as 4.5x 11in
 
-###Gene tree
+###Figure 6b: CN06528 gene tree
+nwk<-read.tree("C:/Users/clair/OneDrive/Desktop/R_pangenome/RAxML_bipartitions.CN06528_boot2.nwk")
+gene_tree_root <- root(nwk, outgroup="YLR307W", resolve.root=TRUE)
+gene_tree_root$edge.length[which(!(gene_tree_root$edge[,1] %in% gene_tree_root$edge[,2]))] <- sum(gene_tree_root$edge.length[which(!(gene_tree_root$edge[,1] %in% gene_tree_root$edge[,2]))])/2
+tip_names<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/CN06528_tip_names.csv", sep=',', header=TRUE)
+gene_tree_root$tip.label[match(tip_names$Prot_ID, gene_tree_root$tip.label)] <- tip_names$new_name
+g<-ggtree(gene_tree_root,size=0.1)+
+  geom_tiplab(size=2.5,show.legend=FALSE,align=FALSE, fontface = "italic")+
+  geom_rootedge(rootedge=0.1)+
+  xlim_tree(9)+
+  geom_nodelab(size=2, nudge_x=-0.2)+
+  #geom_text(aes(label=node), size=3, hjust=2)+
+  geom_hilight(node=3, fill="blue",alpha=0.2,extend=2.1)
+#save as 4x6
+
+###Figure 6c: CN06540 & C.gattii synteny map
 library(gggenomes)
 s0<-tibble::tibble(
   bin_id=c("Chr14", "ChrH","Chr04","ChrI"),
@@ -455,9 +471,9 @@ s0<-tibble::tibble(
   start=c(1,1,867436,830932),
   end=c(126713,126152,1053706,989306)
 )
-l1 <-read.csv("C:/Users/clair/Downloads/CN06540_links.csv")
+l1 <-read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/CN06540_links.csv")
 p<-gggenomes(seqs=s0,links=l1)
-p2<-
+p2<- 
   p + 
   geom_seq_label()+
   geom_link_curved(fill="blue", color="blue",alpha=0.5, color="NA",offset=0.0,
@@ -465,3 +481,5 @@ p2<-
   geom_seq(size=1,fill="NA") +
   geom_seq_break(size=6)
 p3<- p2 %>% flip(3,4)
+#export as 4x6 in
+
