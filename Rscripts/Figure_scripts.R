@@ -334,11 +334,11 @@ ggplot(data=H99_chr_length)+
   geom_segment(data=H99_chr_length,aes(x=chr_name,y=cen_start,yend=cen_end),
                color="grey90",
                size=5,
-               lineend="round")+
+               lineend="butt")+
   geom_segment(data=mat_locus,aes(x=chr_name,y=mat_start,yend=mat_end),
                color="lightblue",
                size=5,
-               lineend="round")+
+               lineend="butt")+
   geom_segment(data=dat8 %>%filter(V6=="accessory"), 
                aes(x=V2,xend=V2,y=V3,yend=V4),
                color="#ce4257",
