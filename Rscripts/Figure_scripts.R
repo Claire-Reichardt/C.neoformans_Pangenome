@@ -1,4 +1,3 @@
-#Updated 10/13/26
 ###Figure 2a: Make a pie
 library(ggplot2)
 library(dplyr)
@@ -230,9 +229,26 @@ ggplot(mol_specific,aes(x=mol_list))+
   scale_fill_manual(
     name="Gene class",
     values=c("#ce4257","#720026"))
-#save as 4x7.5
+#save as 9x4.25in
 
-###Figure 4b: Create plot showing accessory genes per genome curve for each molecular type
+###Figure 4b: Create heatmap of ortholog conservation
+library(pheatmap)
+dat20g<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/one-to-one_orthocompare_groups.csv", sep=',', header=TRUE)
+rownames(dat20g) <- dat20g[,1]
+dat20g <- dat20g[,-1]
+labels <- data.frame(Group = c("VNI", "VNII", "VNBI","VNBII"))
+row.names(labels)<-c("VNI", "VNII", "VNBI","VNBII")
+h<-pheatmap(dat20g,
+            annotation_row = labels, 
+            annotation_col = labels,
+            show_rownames = FALSE,
+            show_colnames = FALSE,
+            color = hcl.colors(10, palette = "Rocket", alpha = TRUE, rev = TRUE, fixup = TRUE),
+            silent = TRUE,
+            annotation_colors=list(Group=c(VNI="#B5838D",VNII="#FFB4A2",VNBII="#6D6875",VNBI="#E5989B")))
+#export as 6.5x5.5
+
+###Figure 4c: Create plot showing accessory genes per genome curve for each molecular type
 dat26<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/VNBII_accessory_pergenome.csv", sep=',', header=TRUE)
 #dat27<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/VNII_accessory_pergenome.csv", sep=',', header=TRUE)
 dat28<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/VNBI_accessory_pergenome.csv", sep=',', header=TRUE)
@@ -314,7 +330,38 @@ g<-ggtree(groupedtree,layout="circular",aes(color=group),size=0.9)+
   theme(plot.margin = margin(t=0.5,r=0.5,l=1,b=1.5, "cm"))
 #export as 5x7
 
-###Figure 5a: plot for accessory gene locations in H99
+###Figure 5a: plot for H99 essentially stacked bar
+dat23<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/essentiality.csv", sep=',', header=TRUE)
+dat23_melt <- melt(dat23, id.vars = "class")
+dat23_essential <- dat23_melt[dat23_melt$variable == 'Essential', ]
+dat23_nonessential <- dat23_melt[dat23_melt$variable == 'Nonessential', ]
+dat23_unknown <- dat23_melt[dat23_melt$variable == 'Unknown', ]
+dat23_melt$class <- factor(dat23_melt$class,
+                           levels = c("Core", "Accessory"))
+g<- ggplot(dat23_melt, aes(x=class, y=value))
+b<- g+
+  geom_bar_pattern(stat="identity",
+                   aes(pattern = variable, fill=class), 
+                   pattern_fill="black",
+                   pattern_colour="black",
+                   color="black")+
+  theme_bw()+
+  scale_fill_manual(name="Pangenome",
+                    values=c("#720026","#ce4257"))+
+  scale_pattern_manual(name="Essentiality",
+                       values = c(Nonessential = "none", Essential = "stripe",Unknown="circle")) +
+  labs(x = "Ortholog group classification",
+       y = "Proportion")+
+  guides(pattern = guide_legend(override.aes = list(fill = "white")),
+         fill = guide_legend(override.aes = list(pattern = "none")))+
+  theme(axis.title = element_text(size = 15),
+        legend.text=element_text(size=12),
+        legend.title=element_text(size=15),
+        axis.text=element_text(size=12),
+        panel.grid.minor=element_blank())
+#export as 4x5in
+
+###Figure 5b: plot for accessory gene locations in H99
 dat8<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/Orthos_H99.csv", sep=',', header=FALSE)
 dat8<- subset(dat8, V2 != "MT")
 H99_chr_length<-data.frame(chr_name=1:14,                        chr_len=c(2291499,1621675,1575141,1084805,1814975, 1422463,1399503,1398693,1186808,1059964,1561994,774062,756744,942867),
@@ -353,7 +400,7 @@ ggplot(data=H99_chr_length)+
   scale_x_reverse(breaks=seq(1,14, by=1))
 #export as 4x6in
 
-###Figure 5b: make plot to show difference between accessory gene locations
+###Figure 5c: make plot to show difference between accessory gene locations
 library(ggsignif)
 subtelo<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/longread_subtelo_acc.csv", sep=',', header=TRUE) %>% select(c("Genome","acc_per_bp_subtelo", "acc_per_bp_genome"))
 subtelo_melt<- melt(subtelo, id.vars = "Genome")
@@ -376,7 +423,7 @@ ggplot(subtelo_melt,aes(y=value*100000,x=variable))+
               map_signif_level=TRUE)
 #export as 4x4
 
-###Figure 5c: Chromosome 5 left arm genes
+###Figure 5d: Chromosome 5 left arm genes
 library(gggenomes)
 s0<-tibble::tibble(
   seq_id=c("H99","125.91","T4","Bt1","Ftc146-1"),
@@ -402,22 +449,6 @@ p+
     name="Gene class",
     values=c("#ce4257","#720026"))
 
-###Figure 5d: Create heatmap of ortholog conservation
-library(pheatmap)
-dat20g<- read.csv("C:/Users/clair/OneDrive/Desktop/R_pangenome/one-to-one_orthocompare_groups.csv", sep=',', header=TRUE)
-rownames(dat20g) <- dat20g[,1]
-dat20g <- dat20g[,-1]
-labels <- data.frame(Group = c("VNI", "VNII", "VNBI","VNBII"))
-row.names(labels)<-c("VNI", "VNII", "VNBI","VNBII")
-h<-pheatmap(dat20g,
-            annotation_row = labels, 
-            annotation_col = labels,
-            show_rownames = FALSE,
-            show_colnames = FALSE,
-            color = hcl.colors(10, palette = "Rocket", alpha = TRUE, rev = TRUE, fixup = TRUE),
-            silent = TRUE,
-            annotation_colors=list(Group=c(VNI="#B5838D",VNII="#FFB4A2",VNBII="#6D6875",VNBI="#E5989B")))
-#export as 6.5x5.5
 
 ###Figure 6a: Accessory vs. species tree heatmap
 tree <- read.tree("C:/Users/clair/OneDrive/Desktop/R_pangenome/Cohleo_Crypto_Kwoniella_RelTime_timetree.nwk")
@@ -481,5 +512,4 @@ p2<-
   geom_seq(size=1,fill="NA") +
   geom_seq_break(size=6)
 p3<- p2 %>% flip(3,4)
-#export as 4x6 in
-
+#export ads 4x6 in
